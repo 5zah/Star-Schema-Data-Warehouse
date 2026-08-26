@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary & Anomaly Test SQLite databases
+data/anomaly_test_dwh.db
+data/test_manufacturing_dwh.db
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Temporary configs
+config/anomaly_test_config.yaml
