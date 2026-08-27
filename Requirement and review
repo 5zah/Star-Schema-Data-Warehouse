@@ -1,0 +1,435 @@
+Ran command: `git status`
+Listed directory ETL%20testing
+Listed directory config
+Listed directory src
+Listed directory tests
+Listed directory pytest_framework
+Viewed framework_walkthrough.md:1-125
+Viewed README.md:1-109
+Viewed test_dwh_reconciliation.py:1-143
+Viewed test_reconciliation.py:1-70
+Viewed mapping_transformation_logic.md:1-60
+Viewed azure_snowflake_ddl.sql:1-60
+Viewed e2e_sql_validations.sql:1-60
+Viewed setup_guide.md:1-60
+Viewed test_cases.md:1-60
+Ran command: `powershell -Command "Copy-Item -Path 'C:\Users\faiza\.gemini\antigravity-ide\brain\95569f67-49bb-4597-a6ee-d37a1e8e0ba8\setup_guide.md' -Destination 'C:\Users\faiza\Downloads\Testing Profile\ETL testing\setup_guide.md' -Force; Copy-Item -Path 'C:\Users\faiza\.gemini\antigravity-ide\brain\95569f67-49bb-4597-a6ee-d37a1e8e0ba8\test_cases.md' -Destination 'C:\Users\faiza\Downloads\Testing Profile\ETL testing\test_cases.md' -Force"`
+Created framework_walkthrough.md
+Created PROJECT_OVERVIEW_AND_CHANGES.md
+Ran command: `powershell -Command "Compress-Archive -Path 'C:\Users\faiza\Downloads\Testing Profile\ETL testing\*' -DestinationPath 'C:\Users\faiza\Downloads\Testing Profile\ETL testing\etl_framework_package.zip' -Force"`
+Used tool: manage_task
+
+All project folders, files, test suites, and documentation have been updated in your local workspace.
+
+---
+
+### 📄 What Was Created & Updated
+
+1. **Master Document & Changelog**: [PROJECT_OVERVIEW_AND_CHANGES.md](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/PROJECT_OVERVIEW_AND_CHANGES.md)
+   - **Chronological summary** of all tasks completed from the start to now.
+   - **Complete File & Folder Inventory** (what each file contains and where it is located).
+   - **Highlighted step-by-step setup guide** for local development and cloud (Azure SQL / Snowflake).
+
+2. **Framework Walkthrough Guide**: [framework_walkthrough.md](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/framework_walkthrough.md)
+   - Comprehensive system architecture and code walkthrough.
+
+3. **Detailed Test Case Matrix**: [test_cases.md](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/test_cases.md)
+   - 14 test suites (7 PASS baseline tests + 7 FAIL anomaly detection tests).
+
+4. **New Laptop Onboarding Guide**: [setup_guide.md](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/setup_guide.md)
+   - Step-by-step instructions for Python setup, dependencies, database connectivity, and test execution.
+
+5. **Integration Specification Document**: [isd.md](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/isd.md)
+   - Star Schema DWH architecture, Entity-Relationship details, data dictionary, and ETL rules.
+
+---
+
+### 📂 Quick Directory & File Reference
+
+| Folder / File | Description |
+|---|---|
+| [`config/azure_snowflake_ddl.sql`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/config/azure_snowflake_ddl.sql) | DDL scripts for Azure SQL (Source) & Snowflake (Target) |
+| [`config/mapping_transformation_logic.md`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/config/mapping_transformation_logic.md) | Source-to-Target mapping and transformation logic |
+| [`config/e2e_sql_validations.sql`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/config/e2e_sql_validations.sql) | SQL validation queries (Volume, Unique Keys, Aggregates, Orphans) |
+| [`config/reconciliation_config.yaml`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/config/reconciliation_config.yaml) | Master reconciliation mapping rules & tolerances |
+| [`src/web/app.py`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/src/web/app.py) | Flask Web Dashboard backend with mismatch report downloads |
+| [`src/reconciliation/`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/src/reconciliation/) | 4-Pillar validation engine (Volume, Attribute, Aggregate, Multi-Source) |
+| [`tests/test_reconciliation.py`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/tests/test_reconciliation.py) | 14 Unittest suites (7 PASS + 7 FAIL) |
+| [`tests/pytest_framework/`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/tests/pytest_framework/) | Pytest suite with connection fixtures for Azure SQL & Snowflake |
+| [`reports/`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/reports/) | Generated HTML, Excel, and Markdown mismatch reports |
+
+---
+
+### 🚀 Highlighted Quick-Start Commands
+
+```powershell
+# 1. Start the Web Dashboard (open http://127.0.0.1:5000)
+python src/web/app.py
+
+# 2. Run the full automated pipeline via CLI
+python main.py --action all
+
+# 3. Run the 14 Unit and Integration Tests (7 PASS + 7 FAIL)
+python -m unittest tests/test_reconciliation.py -v
+
+# 4. Run Pytest SQL Reconciliation Tests
+pytest tests/pytest_framework/test_dwh_reconciliation.py -v
+```
+
+The standalone zip archive **[`etl_framework_package.zip`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/etl_framework_package.zip)** has also been updated. 
+
+It contains the updated codebase, DDL scripts, mapping rules, test suites, Web UI, and all documentation files ([`PROJECT_OVERVIEW_AND_CHANGES.md`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/PROJECT_OVERVIEW_AND_CHANGES.md), [`setup_guide.md`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/setup_guide.md), [`test_cases.md`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/test_cases.md), and [`framework_walkthrough.md`](file:///C:/Users/faiza/Downloads/Testing%20Profile/ETL%20testing/framework_walkthrough.md)).
+
+
+Implementation Plan - Enterprise Star Schema DWH & Multi-Database Reconciliation Engine
+Design and implement a complete Manufacturing Data Warehouse (Star Schema), a Data Scaling Engine, a Warehouse Migration Pipeline, and a Reusable, Multi-Database Reconciliation Engine with automated reporting across all validation scopes.
+User Review Required
+IMPORTANT
+•	Multi-Database Support: The reconciliation engine uses a unified SQLAlchemy and file-connector abstraction supporting SQLite, DuckDB, PostgreSQL, MySQL, SQL Server, Snowflake, Oracle, and flat files (Excel, CSV, Parquet).
+•	Default Target DWH: We will create and populate a local SQLite Data Warehouse (data/manufacturing_dwh.db) implementing the Star Schema, and demonstrate seamless cross-database reconciliation.
+•	No Third-Party Cloud Prerequisites: The solution runs completely locally without external cloud dependencies, while providing plug-and-play drivers for enterprise database engines.
+Architecture & Data Modeling
+6. Automated Reporting Engine5. Reusable Reconciliation Engine3. Warehouse Migration Pipeline (ETL)2. Data Scaling Engine1. Source Layer (Multi-Source)4. Target Data Warehouse (Star Schema)dim_datefact_work_ordersfact_machine_telemetryfact_quality_inspectionsfact_labor_performancefact_cost_financialsfact_procurementdim_plantdim_production_linedim_productdim_machinedim_operatordim_supplierdim_materialdim_defect_catalogFlat Denormalized Excel(manufacturing_mock_data.xlsx)Relational 3NF Excel Sheets(manufacturing_relational_data.xlsx)Scaled Synthesized Data(10k - 1M+ rows)External DBs (Postgres, MySQL, etc.)Referential Integrity Multiplier& Data SynthesizerMulti-Source ExtractorStar Schema Transformer(SCD, Surrogate Keys, Dim Lookups)Staging & ValidationBulk DWH LoaderDynamic Mapper & Schema ParserModule 1: Volume & Partition ReconciliationModule 2: Attribute & Cell-Level Validation (Tolerances)Module 3: Aggregate Measure ReconciliationModule 4: Multi-Source Consistency AssessmentInteractive HTML Dashboard (Visual & Searchable)Multi-Tab Excel Mismatch WorkbookExecutive Markdown SummaryCI/CD Machine-Readable JSON Log
+________________________________________
+Proposed Modules & Implementation Details
+1. Multi-Database & Multi-Source Connector Layer (src/connectors/)
+•	base.py: Generic Abstract Connector defining unified methods: fetch_dataframe(query_or_table, params, chunksize), fetch_aggregates(table, group_by, metrics), get_row_count(table_or_query, filter_expr), get_schema(table_or_query), get_distinct_values(table, column).
+•	sqlalchemy_connector.py: Connects to any SQL dialect via SQLAlchemy (SQLite, DuckDB, PostgreSQL, MySQL, SQL Server, Oracle, Snowflake).
+•	excel_connector.py: Connects to Excel sheets (.xlsx, .xls) with sheet-as-table abstraction and SQL-like querying via pandas/SQLite memory engine.
+•	csv_connector.py: Connects to CSV/TSV/Parquet directories or files.
+•	factory.py: Instantiates the appropriate connector from connection URI / YAML config.
+2. Star Schema & Data Warehouse Modeling (src/warehouse/)
+•	Dimensions (dim_*):
+•	dim_date: Generated calendar date dimension (Date_Key YYYYMMDD, Year, Quarter, Month, Month_Name, Week, Day_Of_Week, Is_Weekend, Fiscal_Period).
+•	dim_plant: Plant_Key (SK), Plant_Code (BK), Plant_Name, Country, Region, City, Plant_Type, Square_Footage, ISO certifications, Coordinates.
+•	dim_production_line: Line_Key (SK), Line_ID (BK), Plant_Code, Line_Name, Line_Type, Automation_Level, Capacity, Safety_Rating.
+•	dim_product: Product_Key (SK), Product_SKU (BK), Product_Family, Product_Name, Revision, BOM_Version, Category, Standard_Weight, Target_Cpk.
+•	dim_machine: Machine_Key (SK), Machine_ID (BK), Line_ID, Machine_Type, Manufacturer, Model_Year, PLC_Firmware, Criticality.
+•	dim_operator: Operator_Key (SK), Operator_ID (BK), Operator_Name, Department, Job_Title, Shift, Labor_Rate.
+•	dim_supplier: Supplier_Key (SK), Supplier_ID (BK), Supplier_Name, Country, Tier, Preferred_Status, Quality_Rating.
+•	dim_material: Material_Key (SK), Material_ID (BK), Raw_Material_Type, Lot_Number, Storage_Condition, Recycled_Content_Pct.
+•	dim_defect_catalog: Defect_Key (SK), Primary_Defect_Type, Secondary_Defect_Type, Critical_Defect_Flag.
+•	Fact Tables (fact_*):
+•	fact_work_orders: Grain = 1 row per Work Order. Measures: Planned_Qty, Produced_Qty, Good_Qty, Scrap_Qty, Yield_Percent, Cycle_Time, OEE_Percent, Availability, Performance, Quality_Rate.
+•	fact_machine_telemetry: Grain = 1 row per Reading. Measures: Spindle_Speed_RPM, Feed_Rate, Tool_Wear_Percent, Coolant_Flow, Temperatures, Vibration, Power_Consumption_kWh, Data_Quality_Score.
+•	fact_quality_inspections: Grain = 1 row per Quality Inspection & Measurement. Measures: Sample_Size, Defect_Count, Inspection_Duration_Min, Hardness, Tensile_Strength, SPC_Cpk, SPC_Ppk.
+•	fact_labor_performance: Grain = 1 row per Shift Labor. Measures: Hours_Worked, Overtime_Hours, Labor_Rate, Efficiency_Percent.
+•	fact_cost_financials: Grain = 1 row per Cost Ledger. Measures: Material_Cost, Labor_Cost, Overhead_Cost, Standard_Cost, Variance, Selling_Price, Gross_Margin_Percent.
+•	fact_procurement: Grain = 1 row per Purchase Order. Measures: Order_Qty, Unit_Price, Total_PO_Value, Freight_Cost, Customs_Duty.
+3. Data Scaling Engine (src/scaling/)
+•	Generates synthetic scaled manufacturing datasets (10k, 100k, 1M rows) scaling from seed excel data.
+•	Ensures strict referential integrity (foreign keys properly reference parent dimension entities).
+•	Uses realistic statistical distributions, temporal sequences, and correlated metrics (e.g. scrap rates, cycle times, power consumption).
+4. Warehouse Migration Pipeline (src/warehouse/migration_pipeline.py)
+•	Extracts raw tables from Excel/DB sources.
+•	Assigns surrogate keys and builds dimension reference maps.
+•	Computes fact table foreign keys via dimension lookups.
+•	Bulk loads into Target DWH (manufacturing_dwh.db).
+5. Generic Multi-Database Reconciliation Engine (src/reconciliation/)
+Supports any source vs any target with dynamic mapping configurations:
+•	Module 1: Data Volume Reconciliation
+•	Total row counts across source & target.
+•	Partition / Group-By volume comparisons (e.g. record counts per Plant, per Month, per Shift).
+•	Identification of missing primary/business keys in source or target.
+•	Module 2: Data Reconciliation & Attribute-Level Validation
+•	Dynamic column mapping (1-to-1, renamed, typed, or transformed).
+•	100% cell-by-cell comparison.
+•	Absolute (atol) and relative (rtol) numerical tolerance comparison for floats.
+•	Case-insensitive, whitespace-trimmed string comparison.
+•	Standardized Date/Timestamp comparison.
+•	Exact mismatch records generation with coordinates [Key, Column, Source_Value, Target_Value, Delta, Delta_Pct].
+•	Module 3: Aggregate Measure Reconciliation
+•	Compares mathematical aggregations (SUM, AVG, MIN, MAX, STDDEV, COUNT) across all key business metrics.
+•	Dimensional grouped aggregate checks (e.g. Total Labor Cost by Department, Total Scrap Qty by Plant).
+•	Arithmetic integrity checks (e.g. Good_Qty + Scrap_Qty == Produced_Qty).
+•	Module 4: Multi-Source Consistency Assessment
+•	Flat table (Manufacturing_Data) vs Relational 3NF sheets vs Star Schema Data Warehouse.
+•	Validates that no data is lost or corrupted across transformations.
+6. Automated Reporting Engine (src/reporting/)
+•	Interactive HTML Report: Standalone dashboard with glassmorphism UI, interactive KPI cards, pass/fail badges, Chart.js aggregate comparison charts, and searchable, paginated mismatch drill-down tables.
+•	Multi-Tab Excel Workbook: Formatted Excel report (Mismatch_Report.xlsx) with tabs for Executive_Summary, Volume_Reconciliation, Attribute_Mismatches, Aggregate_Reconciliation, and Multi_Source_Consistency.
+•	Markdown & JSON Reports: Terminal and CI/CD-friendly outputs with status exit codes.
+________________________________________
+Proposed Project Structure
+ETL testing/
+├── config/
+│   ├── dwh_schema.sql                  # Star schema DDL
+│   ├── reconciliation_config.yaml      # Dynamic mappings & reconciliation test suites
+│   └── scale_config.yaml               # Scaling configuration
+├── src/
+│   ├── __init__.py
+│   ├── connectors/
+│   │   ├── __init__.py
+│   │   ├── base.py                     # Unified connector interface
+│   │   ├── sqlalchemy_connector.py     # Multi-DB SQLAlchemy connector
+│   │   ├── excel_connector.py          # Excel sheet connector
+│   │   └── factory.py                  # Connector factory
+│   ├── warehouse/
+│   │   ├── __init__.py
+│   │   ├── schema_builder.py           # DDL runner & index manager
+│   │   ├── transformer.py              # Dimension & Fact builder with SKs
+│   │   └── migration_pipeline.py       # Full migration orchestrator
+│   ├── scaling/
+│   │   ├── __init__.py
+│   │   └── data_scaler.py              # Scaled data synthesizer
+│   ├── reconciliation/
+│   │   ├── __init__.py
+│   │   ├── engine.py                   # Main test suite runner
+│   │   ├── mapper.py                   # Dynamic mapping parser
+│   │   ├── volume_validator.py         # Volume & partition checker
+│   │   ├── attribute_validator.py      # Attribute & cell-level comparator
+│   │   ├── aggregate_validator.py      # Aggregate measure validator
+│   │   └── multi_source_validator.py   # Cross-source consistency checker
+│   ├── reporting/
+│   │   ├── __init__.py
+│   │   ├── html_reporter.py            # Rich interactive HTML dashboard
+│   │   ├── excel_reporter.py           # Multi-sheet styled Excel report
+│   │   └── markdown_reporter.py        # Executive summary
+│   └── cli.py                          # Unified CLI
+├── tests/
+│   ├── __init__.py
+│   └── test_reconciliation.py          # Pytest validation suite
+├── reports/                            # Output directory for HTML/Excel/MD reports
+├── data/                               # Output directory for SQLite DWH & scaled datasets
+└── main.py                             # Executable orchestrator script
+________________________________________
+Verification Plan
+Automated Tests & End-to-End Execution
+1.	Migration Verification:
+•	Run python main.py --action migrate to extract from Excel, build Star Schema in data/manufacturing_dwh.db, and populate 9 Dimensions and 6 Fact tables.
+•	Verify table counts, primary keys, foreign key constraints, and indexing.
+2.	Scaling Verification:
+•	Run python main.py --action scale --multiplier 5 to scale dataset to 5,000+ records and verify referential integrity across all generated relational tables.
+3.	Reconciliation Execution:
+•	Run python main.py --action reconcile to execute all 4 validation modules:
+•	Volume reconciliation across all tables.
+•	Attribute-level cell validation on sample and full populations with tolerance.
+•	Aggregate measure comparison across dimensions.
+•	Multi-source consistency (Flat Excel vs Relational vs Star Schema DWH).
+4.	Deliberate Anomaly Injection & Mismatch Detection Test:
+•	Run automated anomaly test injecting controlled mismatches (e.g. 5 modified cell values, 2 dropped rows, 1 aggregate drift) to prove the reconciliation engine detects 100% of discrepancies with zero false negatives.
+5.	Report Generation Verification:
+•	Verify generated interactive HTML report in browser, open and verify formatted multi-tab Excel report, and inspect Markdown/JSON outputs.
+
+
+
+# 📋 Master Project Overview, Complete Changelog & Setup Guide
+### Enterprise ETL Testing & Multi-Database Reconciliation Framework
+**Author:** Faizah Shaikh (`faizah.shaikh@gds.ey.com`) | **Role:** Senior ETL Tester & Quality Engineer  
+**Date:** August 2026 | **Version:** 2.0.0
+
+---
+
+## 📌 Table of Contents
+1. [Executive Summary & Completed User Requests](#1-executive-summary--completed-user-requests)
+2. [Chronological Changelog: What Was Changed & Why](#2-chronological-changelog-what-was-changed--why)
+3. [Master File & Folder Inventory: Which File is Where & What It Contains](#3-master-file--folder-inventory-which-file-is-where--what-it-contains)
+4. [Highlighted Step-by-Step Setup Guide](#4-highlighted-step-by-step-setup-guide)
+5. [How to Run Tests, UI, and Download Mismatch Reports](#5-how-to-run-tests-ui-and-download-mismatch-reports)
+
+---
+
+## 1. 🌟 Executive Summary & Completed User Requests
+
+Here is the complete tracking of every request and milestone completed throughout this engagement:
+
+| # | User Request / Ask | Implementation & Delivered Artifact | Status |
+|:---|:---|:---|:---:|
+| 1 | **Pass and Fail Test Cases** | Created 14 test suites in `tests/test_reconciliation.py` (7 PASS baseline tests + 7 FAIL anomaly detection tests covering dropped rows, numeric corruption, string drift, aggregate drift, orphaned keys, and truncated loads). | ✅ **Completed** |
+| 2 | **Test Cases Documentation & New Laptop Setup** | Delivered `test_cases.md` (detailed 14-test matrix) and `setup_guide.md` (step-by-step onboarding for a fresh machine). | ✅ **Completed** |
+| 3 | **Git & Local Directory Synchronization** | Configured `.gitignore`, initialized git repository tracking, and organized all artifacts in the root directory. | ✅ **Completed** |
+| 4 | **Database DDL Scripts (Azure SQL & Snowflake)** | Delivered `config/azure_snowflake_ddl.sql` defining 3NF tables for Azure SQL (Source) and Star Schema tables with surrogate keys for Snowflake (Target). | ✅ **Completed** |
+| 5 | **Source-to-Target Mapping Sheet** | Delivered `config/mapping_transformation_logic.md` detailing all column transformations, surrogate key lookups, and SCD Type 1 rules. | ✅ **Completed** |
+| 6 | **End-to-End SQL Validation Queries** | Created `config/e2e_sql_validations.sql` containing SQL verification scripts for volume, duplicate keys, null constraints, aggregates, and orphan foreign keys. | ✅ **Completed** |
+| 7 | **Reusable Python Automation Scripts & Engine** | Built modular multi-database reconciliation engine under `src/reconciliation/` supporting Volume, Attribute, Aggregate, and Multi-Source validation. | ✅ **Completed** |
+| 8 | **Interactive Web Application UI** | Developed Flask web dashboard (`src/web/app.py`, `src/web/templates/index.html`) allowing one-click execution and live logs. | ✅ **Completed** |
+| 9 | **Downloadable Mismatch Reports in UI** | Integrated `/download-report/<format>` endpoint in Flask UI and added buttons to download **HTML** and **Excel** mismatch reports generated by anomaly test runs. | ✅ **Completed** |
+| 10 | **Integration Specification Document (ISD)** | Generated `isd.md` providing end-to-end architecture, entity relationships, data dictionary, and QA test plan. | ✅ **Completed** |
+
+---
+
+## 2. 📝 Chronological Changelog: What Was Changed & Why
+
+### Phase 1: Star Schema Warehouse & Data Ingestion
+- **What was built**: Ingested manufacturing dataset (`manufacturing_relational_data.xlsx` and `manufacturing_mock_data.xlsx`), created 12 Dimensions (`dim_date`, `dim_plant`, `dim_product`, `dim_machine`, etc.) and 8 Fact tables (`fact_work_orders`, `fact_sales_detail`, etc.).
+- **Files created**: `src/warehouse/schema_builder.py`, `src/warehouse/transformer.py`, `src/warehouse/migration_pipeline.py`, `config/dwh_schema.sql`.
+- **Why**: Provided a robust Star Schema foundation optimized for analytical querying and reconciliation.
+
+### Phase 2: 4-Pillar Reconciliation Engine & Scaler
+- **What was built**: Built modular reconciliation engine covering:
+  - Scope 1: Volume Reconciliation (`src/reconciliation/volume_validator.py`)
+  - Scope 2: Attribute-Level Cell Comparison (`src/reconciliation/attribute_validator.py`)
+  - Scope 3: Aggregate Measure Reconciliation (`src/reconciliation/aggregate_validator.py`)
+  - Scope 4: Multi-Source Consistency (`src/reconciliation/multi_source_validator.py`)
+  - Referential Data Scaler (`src/scaling/data_scaler.py`)
+- **Why**: Reusable validation engine capable of comparing any source to any target dynamically using YAML configuration.
+
+### Phase 3: Reporting & Anomaly Detection (Pass/Fail Test Cases)
+- **What was built**: Authored 14 automated test suites in `tests/test_reconciliation.py`. Added multi-format report generators (HTML, Excel, Markdown) in `src/reporting/`. Created `config/anomaly_test_config.yaml`.
+- **Why**: Demonstrated that the engine not only verifies clean data (100% PASS), but also reliably detects anomalies, data corruption, and referential breaks (FAIL verification).
+
+### Phase 4: Azure SQL & Snowflake Cloud Adaptation
+- **What was built**: Created `config/azure_snowflake_ddl.sql`, `config/mapping_transformation_logic.md`, and `config/e2e_sql_validations.sql`. Created Pytest suite with database fixtures in `tests/pytest_framework/conftest.py` and `tests/pytest_framework/test_dwh_reconciliation.py`.
+- **Why**: Provided junior data engineers and QA teams with exact production-grade DDL, mapping logic, and SQL scripts for Azure SQL to Snowflake migrations.
+
+### Phase 5: Web UI & Download Mismatch Reports
+- **What was built**: Developed Flask web interface with action buttons for Migration, Scaling, Reconciliation, and Anomaly Testing. Added dedicated download buttons for HTML and Excel mismatch reports. Updated `cli.py` to write anomaly reports directly to `reports/` folder.
+- **Why**: Allowed non-technical stakeholders and QA testers to trigger runs and immediately download detailed mismatch spreadsheets from a web browser.
+
+---
+
+## 3. 📂 Master File & Folder Inventory: Which File is Where & What It Contains
+
+Here is the complete map of every folder and file in this repository:
+
+```
+ETL testing/
+│
+├── 📁 config/                               # Configuration files, DDLs, and Mapping specs
+│   ├── 📄 anomaly_test_config.yaml          # Defines reconciliation test suites targeting corrupted clone DWH
+│   ├── 📄 azure_snowflake_ddl.sql           # Production DDL for Azure SQL (Source OLTP) and Snowflake (Target OLAP)
+│   ├── 📄 dwh_schema.sql                    # SQLite DDL creating 12 Dimensions, 8 Facts, and B-Tree indexes
+│   ├── 📄 e2e_sql_validations.sql           # Ready-to-run SQL queries for manual and automated data validation
+│   ├── 📄 mapping_transformation_logic.md   # Source-to-Target mapping rules, SCD Type 1, and business lookups
+│   ├── 📄 reconciliation_config.yaml        # Master YAML defining connection strings, mappings, and tolerances
+│   └── 📄 scale_config.yaml                 # Multipliers and configuration for synthetic data scaling
+│
+├── 📁 data/                                 # Databases and test data artifacts
+│   ├── 📄 manufacturing_dwh.db              # Baseline SQLite Star Schema database (clean target)
+│   ├── 📄 scaled_manufacturing_dwh.db       # Scaled SQLite database generated during volume load testing
+│   └── 📄 test_fail_dwh.db                  # Deliberately corrupted clone database for anomaly testing
+│
+├── 📁 reports/                              # Automated test and reconciliation outputs
+│   ├── 📄 Reconciliation_Report.html        # Interactive glassmorphism HTML dashboard with mismatch tables
+│   ├── 📄 Reconciliation_Report.xlsx        # Tabular multi-sheet Excel report highlighting cell-level mismatches
+│   ├── 📄 Reconciliation_Summary.md         # Executive markdown summary scorecard
+│   └── 📄 reconciliation_results.json       # Raw JSON results for CI/CD test gates
+│
+├── 📁 src/                                  # Application Source Code
+│   ├── 📁 connectors/                       # Database and file connectors
+│   │   ├── 📄 base.py                       # Abstract base connector defining standard connection methods
+│   │   ├── 📄 sqlalchemy_connector.py       # Universal SQLAlchemy connector (Snowflake, Azure SQL, SQLite, etc.)
+│   │   ├── 📄 excel_connector.py            # Excel workbook and worksheet reader
+│   │   ├── 📄 csv_connector.py              # CSV, TSV, and Parquet file reader
+│   │   └── 📄 factory.py                    # Connector factory for dynamic instantiation
+│   │
+│   ├── 📁 warehouse/                        # Data Warehouse ETL migration and transformation
+│   │   ├── 📄 schema_builder.py             # DDL executor and index builder
+│   │   ├── 📄 transformer.py                # Surrogate key lookups, date keys, and fact record assembly
+│   │   └── 📄 migration_pipeline.py         # Full ETL pipeline orchestrator (Source -> DWH)
+│   │
+│   ├── 📁 scaling/                          # Data Synthesizer
+│   │   └── 📄 data_scaler.py                # Synthesizes scaled data while preserving FK referential integrity
+│   │
+│   ├── 📁 reconciliation/                   # 4-Pillar Multi-Database Reconciliation Engine
+│   │   ├── 📄 engine.py                     # Master test suite runner executing validators
+│   │   ├── 📄 mapper.py                     # Dynamic mapping and YAML configuration parser
+│   │   ├── 📄 volume_validator.py           # Scope 1: Row count, partition volume, and missing key checks
+│   │   ├── 📄 attribute_validator.py        # Scope 2: 100% cell value comparison with atol/rtol tolerances
+│   │   ├── 📄 aggregate_validator.py        # Scope 3: Mathematical measures (SUM, AVG, MIN, MAX) audit
+│   │   └── 📄 multi_source_validator.py     # Scope 4: Cross-system business rules and calculations
+│   │
+│   ├── 📁 reporting/                        # Multi-format report generation modules
+│   │   ├── 📄 html_reporter.py              # Generates interactive HTML dashboard
+│   │   ├── 📄 excel_reporter.py             # Generates styled Excel report with conditional formatting
+│   │   └── 📄 markdown_reporter.py          # Generates Markdown summary
+│   │
+│   ├── 📁 web/                              # Web Application & Dashboard UI
+│   │   ├── 📄 app.py                        # Flask web application backend and REST API endpoints
+│   │   └── 📁 templates/
+│   │       └── 📄 index.html                # Responsive web dashboard frontend with log viewer and download links
+│   │
+│   └── 📄 cli.py                            # Unified CLI router for all operations
+│
+├── 📁 tests/                                # Automated Test Suites
+│   ├── 📁 pytest_framework/                 # Pytest framework for SQL validation
+│   │   ├── 📄 conftest.py                   # Pytest fixtures for Azure SQL, Snowflake, and SQLite connections
+│   │   └── 📄 test_dwh_reconciliation.py    # Pytest positive (match) and negative (defect) test cases
+│   └── 📄 test_reconciliation.py            # 14 Unittest suites (7 PASS + 7 FAIL anomaly detection tests)
+│
+├── 📄 isd.md                                # Integration Specification Document (Architecture, Data Dictionary, Test Plan)
+├── 📄 test_cases.md                         # Formal Test Case Matrix & detailed execution steps
+├── 📄 setup_guide.md                        # Step-by-step onboarding guide for a new laptop/environment
+├── 📄 framework_walkthrough.md              # In-depth architectural walkthrough of the entire framework
+├── 📄 download_package.md                   # Packaging and ZIP instructions
+├── 📄 main.py                               # Root entry point script
+├── 📄 requirements.txt                      # List of all Python dependencies
+├── 📄 README.md                             # Quick project overview
+├── 📄 manufacturing_mock_data.xlsx          # Source flat file dataset (1,000 rows x 212 cols)
+└── 📄 manufacturing_relational_data.xlsx    # Source relational 3NF dataset (15 sheets)
+```
+
+---
+
+## 4. 🚀 Highlighted Step-by-Step Setup Guide
+
+### Step 1: Clone or Copy the Project
+```powershell
+cd "C:\Users\faiza\Downloads\Testing Profile\ETL testing"
+```
+
+### Step 2: Install Required Dependencies
+Ensure Python 3.11+ is installed. Then run:
+```powershell
+pip install -r requirements.txt
+```
+
+### Step 3: Database Connection Configuration
+By default, the framework runs out-of-the-box using local SQLite databases (`data/manufacturing_dwh.db`).
+
+If connecting to live **Microsoft Azure SQL** and **Snowflake** instances, set your environment variables:
+```powershell
+# In PowerShell:
+$env:AZURE_SQL_CONNECTION_STRING = "mssql+pyodbc://<username>:<password>@<server>.database.windows.net/<database>?driver=ODBC+Driver+18+for+SQL+Server"
+$env:SNOWFLAKE_CONNECTION_STRING = "snowflake://<user>:<password>@<account>/<database>/<schema>?warehouse=<warehouse>&role=<role>"
+```
+
+---
+
+## 5. 🎯 How to Run Tests, UI, and Download Mismatch Reports
+
+### Option A: Interactive Web UI (Recommended)
+1. Start the Flask Web Dashboard:
+   ```powershell
+   python src/web/app.py
+   ```
+2. Open your browser to: **`http://127.0.0.1:5000`**
+3. **Execute Actions**:
+   - Click **Run Migration** to build clean tables and migrate source data.
+   - Click **Run Reconciliation** to run the 4-pillar validation engine against clean data.
+   - Click **Run Anomaly Test** to deliberately inject defects into a clone database and catch failures.
+4. **Download Reports**:
+   - Under **Download Mismatch Reports**, click **📄 Download HTML Report** or **📊 Download Excel Report** to view cell-by-cell mismatches.
+
+---
+
+### Option B: Command Line (CLI)
+```powershell
+# 1. Run Complete Pipeline (Migration -> Scaling -> Reconciliation -> Anomaly Testing)
+python main.py --action all
+
+# 2. Run Individual Operations:
+python main.py --action migrate
+python main.py --action scale --multiplier 5
+python main.py --action reconcile
+python main.py --action test-anomaly
+```
+
+---
+
+### Option C: Running the Automated Test Suites
+```powershell
+# 1. Run the 14 Unittest Suites (7 PASS + 7 FAIL Anomaly Tests):
+python -m unittest tests/test_reconciliation.py -v
+
+# 2. Run the Pytest SQL Reconciliation Suite:
+pytest tests/pytest_framework/test_dwh_reconciliation.py -v
+```
+
+---
+
+## 📞 Support & Contacts
+For questions, enhancements, or feedback regarding this framework, contact:  
+**Faizah Shaikh** — `faizah.shaikh@gds.ey.com`
+
+
