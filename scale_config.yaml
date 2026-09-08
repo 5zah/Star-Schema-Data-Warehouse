@@ -1,0 +1,53 @@
+# ====================================================================
+# DATA SCALING ENGINE CONFIGURATION
+# Generates scaled manufacturing relational data with referential integrity
+# ====================================================================
+
+scaling_rules:
+  default_multiplier: 5            # 1,000 -> 5,000 records
+  output_format: "sqlite"          # "sqlite" or "excel" or "both"
+  output_sqlite_path: "data/scaled_manufacturing_relational.db"
+  output_excel_path: "data/scaled_manufacturing_relational.xlsx"
+
+  seed_file: "manufacturing_relational_data.xlsx"
+
+  dimensions:
+    Plants:
+      scale_type: "fixed_or_expand"
+      expand_factor: 1.5           # Expand 1,000 plants to 1,500
+    Production_Lines:
+      scale_type: "relational_expand"
+      lines_per_plant: [2, 5]
+    Products:
+      scale_type: "expand"
+      expand_factor: 2.0
+    Machines:
+      scale_type: "relational_expand"
+      machines_per_line: [3, 8]
+    Operators:
+      scale_type: "expand"
+      expand_factor: 3.0
+    Suppliers:
+      scale_type: "expand"
+      expand_factor: 1.5
+    Materials:
+      scale_type: "expand"
+      expand_factor: 2.0
+
+  facts:
+    Work_Orders:
+      scale_multiplier: 5          # 5x work orders
+    Machine_Process_Readings:
+      readings_per_work_order: [1, 3]
+    Maintenance_Records:
+      probability_per_work_order: 0.25
+    Quality_Inspections:
+      inspections_per_work_order: [1, 2]
+    Quality_Measurements:
+      measurements_per_inspection: [1, 2]
+    Labor_Records:
+      records_per_work_order: [1, 3]
+    Cost_Records:
+      records_per_work_order: 1
+    Purchase_Orders:
+      scale_multiplier: 4

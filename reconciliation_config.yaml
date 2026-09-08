@@ -1,0 +1,327 @@
+# ====================================================================
+# ENTERPRISE RECONCILIATION ENGINE CONFIGURATION
+# Supports: Volume, Attribute, Aggregate, and Multi-Source Consistency
+# ====================================================================
+
+global_settings:
+  environment: "local"
+  log_level: "INFO"
+  default_float_atol: 0.01          # Absolute tolerance for float diffs
+  default_float_rtol: 0.001         # Relative tolerance (0.1%)
+  max_mismatch_display: 50          # Max rows per mismatch table in reports
+  ignore_case_strings: true
+  trim_strings: true
+  export_formats:
+    - "html"
+    - "excel"
+    - "markdown"
+    - "json"
+
+databases:
+  source_excel_relational:
+    type: "excel"
+    filepath: "manufacturing_relational_data.xlsx"
+  source_excel_flat:
+    type: "excel"
+    filepath: "manufacturing_mock_data.xlsx"
+  target_dwh:
+    type: "sqlalchemy"
+    connection_string: "sqlite:///data/manufacturing_dwh.db"
+
+# --------------------------------------------------------------------
+# 1. DATA VOLUME RECONCILIATION SUITE
+# --------------------------------------------------------------------
+volume_reconciliation:
+  threshold_pct_warning: 0.0
+  threshold_pct_critical: 1.0
+  table_pairs:
+    - name: "Plants Dimension Volume"
+      source_db: "source_excel_relational"
+      source_table: "Plants"
+      target_db: "target_dwh"
+      target_table: "dim_plant"
+      key_column: "Plant_Code"
+      target_key_column: "plant_code"
+
+    - name: "Production Lines Volume"
+      source_db: "source_excel_relational"
+      source_table: "Production_Lines"
+      target_db: "target_dwh"
+      target_table: "dim_production_line"
+      key_column: "Line_ID"
+      target_key_column: "line_id"
+
+    - name: "Products Volume"
+      source_db: "source_excel_relational"
+      source_table: "Products"
+      target_db: "target_dwh"
+      target_table: "dim_product"
+      key_column: "Product_SKU"
+      target_key_column: "product_sku"
+
+    - name: "Machines Volume"
+      source_db: "source_excel_relational"
+      source_table: "Machines"
+      target_db: "target_dwh"
+      target_table: "dim_machine"
+      key_column: "Machine_ID"
+      target_key_column: "machine_id"
+
+    - name: "Operators Volume"
+      source_db: "source_excel_relational"
+      source_table: "Operators"
+      target_db: "target_dwh"
+      target_table: "dim_operator"
+      key_column: "Operator_ID"
+      target_key_column: "operator_id"
+
+    - name: "Suppliers Volume"
+      source_db: "source_excel_relational"
+      source_table: "Suppliers"
+      target_db: "target_dwh"
+      target_table: "dim_supplier"
+      key_column: "Supplier_ID"
+      target_key_column: "supplier_id"
+
+    - name: "Materials Volume"
+      source_db: "source_excel_relational"
+      source_table: "Materials"
+      target_db: "target_dwh"
+      target_table: "dim_material"
+      key_column: "Material_ID"
+      target_key_column: "material_id"
+
+    - name: "Work Orders Fact Volume"
+      source_db: "source_excel_relational"
+      source_table: "Work_Orders"
+      target_db: "target_dwh"
+      target_table: "fact_work_orders"
+      key_column: "Work_Order_Number"
+      target_key_column: "work_order_number"
+      partition_by: "Plant_Code"
+      target_partition_by: "plant_key"
+
+    - name: "Sales Detail Fact Volume"
+      source_db: "source_excel_flat"
+      source_table: "Manufacturing_Data"
+      target_db: "target_dwh"
+      target_table: "fact_sales_detail"
+      key_column: "Customer_Order_Number"
+      target_key_column: "customer_order_number"
+
+    - name: "Order Detail Fact Volume"
+      source_db: "source_excel_flat"
+      source_table: "Manufacturing_Data"
+      target_db: "target_dwh"
+      target_table: "fact_order_detail"
+      key_column: "Customer_Order_Number"
+      target_key_column: "order_number"
+
+    - name: "Machine Telemetry Fact Volume"
+      source_db: "source_excel_relational"
+      source_table: "Machine_Process_Readings"
+      target_db: "target_dwh"
+      target_table: "fact_machine_telemetry"
+      key_column: "Reading_ID"
+      target_key_column: "reading_id"
+
+    - name: "Labor Records Fact Volume"
+      source_db: "source_excel_relational"
+      source_table: "Labor_Records"
+      target_db: "target_dwh"
+      target_table: "fact_labor_performance"
+      key_column: "Labor_ID"
+      target_key_column: "labor_id"
+
+    - name: "Cost Records Fact Volume"
+      source_db: "source_excel_relational"
+      source_table: "Cost_Records"
+      target_db: "target_dwh"
+      target_table: "fact_cost_financials"
+      key_column: "Cost_ID"
+      target_key_column: "cost_id"
+
+    - name: "Procurement Fact Volume"
+      source_db: "source_excel_relational"
+      source_table: "Purchase_Orders"
+      target_db: "target_dwh"
+      target_table: "fact_procurement"
+      key_column: "PO_Number"
+      target_key_column: "po_number"
+
+# --------------------------------------------------------------------
+# 2. ATTRIBUTE-LEVEL CELL RECONCILIATION SUITE
+# --------------------------------------------------------------------
+attribute_reconciliation:
+  validations:
+    - name: "Work Orders Attribute Validation"
+      source_db: "source_excel_relational"
+      source_table: "Work_Orders"
+      target_db: "target_dwh"
+      target_table: "fact_work_orders"
+      primary_key:
+        source: "Work_Order_Number"
+        target: "work_order_number"
+      column_mappings:
+        - { source: "Planned_Quantity", target: "planned_quantity", type: "float", atol: 0.01 }
+        - { source: "Produced_Quantity", target: "produced_quantity", type: "float", atol: 0.01 }
+        - { source: "Good_Quantity", target: "good_quantity", type: "float", atol: 0.01 }
+        - { source: "Scrap_Quantity", target: "scrap_quantity", type: "float", atol: 0.01 }
+        - { source: "Yield_Percent", target: "yield_percent", type: "float", atol: 0.01 }
+        - { source: "OEE_Percent", target: "oee_percent", type: "float", atol: 0.01 }
+        - { source: "Availability_Percent", target: "availability_percent", type: "float", atol: 0.01 }
+        - { source: "Performance_Percent", target: "performance_percent", type: "float", atol: 0.01 }
+        - { source: "Quality_Rate_Percent", target: "quality_rate_percent", type: "float", atol: 0.01 }
+        - { source: "Total_Runtime_Hours", target: "total_runtime_hours", type: "float", atol: 0.01 }
+        - { source: "Total_Downtime_Hours", target: "total_downtime_hours", type: "float", atol: 0.01 }
+        - { source: "Order_Status", target: "order_status", type: "string" }
+        - { source: "Production_Order_Type", target: "production_order_type", type: "string" }
+        - { source: "Shift", target: "shift", type: "string" }
+
+    - name: "Cost Records Attribute Validation"
+      source_db: "source_excel_relational"
+      source_table: "Cost_Records"
+      target_db: "target_dwh"
+      target_table: "fact_cost_financials"
+      primary_key:
+        source: "Cost_ID"
+        target: "cost_id"
+      column_mappings:
+        - { source: "Material_Cost_USD", target: "material_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Labor_Cost_USD", target: "labor_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Overhead_Cost_USD", target: "overhead_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Tooling_Cost_USD", target: "tooling_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Energy_Cost_USD", target: "energy_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Total_Unit_Cost_USD", target: "total_unit_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Standard_Cost_USD", target: "standard_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Cost_Variance_USD", target: "cost_variance_usd", type: "float", atol: 0.01 }
+        - { source: "Scrap_Cost_USD", target: "scrap_cost_usd", type: "float", atol: 0.01 }
+        - { source: "Selling_Price_USD", target: "selling_price_usd", type: "float", atol: 0.01 }
+        - { source: "Gross_Margin_Percent", target: "gross_margin_percent", type: "float", atol: 0.01 }
+
+    - name: "Machine Telemetry Attribute Validation"
+      source_db: "source_excel_relational"
+      source_table: "Machine_Process_Readings"
+      target_db: "target_dwh"
+      target_table: "fact_machine_telemetry"
+      primary_key:
+        source: "Reading_ID"
+        target: "reading_id"
+      column_mappings:
+        - { source: "Spindle_Speed_RPM", target: "spindle_speed_rpm", type: "float", atol: 0.01 }
+        - { source: "Feed_Rate_mm_min", target: "feed_rate_mm_min", type: "float", atol: 0.01 }
+        - { source: "Tool_Wear_Percent", target: "tool_wear_percent", type: "float", atol: 0.01 }
+        - { source: "Motor_Temperature_C", target: "motor_temperature_c", type: "float", atol: 0.01 }
+        - { source: "Vibration_mm_s", target: "vibration_mm_s", type: "float", atol: 0.01 }
+        - { source: "Power_Consumption_kWh", target: "power_consumption_kwh", type: "float", atol: 0.01 }
+        - { source: "Data_Quality_Score", target: "data_quality_score", type: "float", atol: 0.01 }
+
+    - name: "Sales Detail Attribute Validation"
+      source_db: "source_excel_flat"
+      source_table: "Manufacturing_Data"
+      target_db: "target_dwh"
+      target_table: "fact_sales_detail"
+      primary_key:
+        source: "Customer_Order_Number"
+        target: "customer_order_number"
+      column_mappings:
+        - { source: "Selling_Price_USD", target: "unit_selling_price_usd", type: "float", atol: 0.01 }
+        - { source: "Gross_Margin_Percent", target: "gross_margin_percent", type: "float", atol: 0.01 }
+        - { source: "Freight_Cost_USD", target: "freight_charge_usd", type: "float", atol: 0.01 }
+        - { source: "Customer_Name", target: "customer_name", type: "string" }
+        - { source: "Carrier", target: "carrier", type: "string" }
+        - { source: "Tracking_Number", target: "tracking_number", type: "string" }
+
+# --------------------------------------------------------------------
+# 3. AGGREGATE MEASURE RECONCILIATION SUITE
+# --------------------------------------------------------------------
+aggregate_reconciliation:
+  tests:
+    - name: "Work Orders Production Aggregates"
+      source_db: "source_excel_relational"
+      source_table: "Work_Orders"
+      target_db: "target_dwh"
+      target_table: "fact_work_orders"
+      metrics:
+        - { source_col: "Planned_Quantity", target_col: "planned_quantity", agg: "sum", atol: 0.01 }
+        - { source_col: "Produced_Quantity", target_col: "produced_quantity", agg: "sum", atol: 0.01 }
+        - { source_col: "Good_Quantity", target_col: "good_quantity", agg: "sum", atol: 0.01 }
+        - { source_col: "Scrap_Quantity", target_col: "scrap_quantity", agg: "sum", atol: 0.01 }
+        - { source_col: "Yield_Percent", target_col: "yield_percent", agg: "avg", atol: 0.01 }
+        - { source_col: "OEE_Percent", target_col: "oee_percent", agg: "avg", atol: 0.01 }
+        - { source_col: "Total_Runtime_Hours", target_col: "total_runtime_hours", agg: "sum", atol: 0.01 }
+        - { source_col: "Total_Downtime_Hours", target_col: "total_downtime_hours", agg: "sum", atol: 0.01 }
+
+    - name: "Cost Financial Totals & Averages"
+      source_db: "source_excel_relational"
+      source_table: "Cost_Records"
+      target_db: "target_dwh"
+      target_table: "fact_cost_financials"
+      metrics:
+        - { source_col: "Material_Cost_USD", target_col: "material_cost_usd", agg: "sum", atol: 0.01 }
+        - { source_col: "Labor_Cost_USD", target_col: "labor_cost_usd", agg: "sum", atol: 0.01 }
+        - { source_col: "Overhead_Cost_USD", target_col: "overhead_cost_usd", agg: "sum", atol: 0.01 }
+        - { source_col: "Total_Unit_Cost_USD", target_col: "total_unit_cost_usd", agg: "avg", atol: 0.01 }
+        - { source_col: "Selling_Price_USD", target_col: "selling_price_usd", agg: "avg", atol: 0.01 }
+        - { source_col: "Scrap_Cost_USD", target_col: "scrap_cost_usd", agg: "sum", atol: 0.01 }
+
+    - name: "Machine Telemetry Power & Temperatures"
+      source_db: "source_excel_relational"
+      source_table: "Machine_Process_Readings"
+      target_db: "target_dwh"
+      target_table: "fact_machine_telemetry"
+      metrics:
+        - { source_col: "Power_Consumption_kWh", target_col: "power_consumption_kwh", agg: "sum", atol: 0.01 }
+        - { source_col: "Motor_Temperature_C", target_col: "motor_temperature_c", agg: "avg", atol: 0.01 }
+        - { source_col: "Vibration_mm_s", target_col: "vibration_mm_s", agg: "avg", atol: 0.01 }
+        - { source_col: "Data_Quality_Score", target_col: "data_quality_score", agg: "avg", atol: 0.01 }
+
+    - name: "Procurement Spend Aggregates"
+      source_db: "source_excel_relational"
+      source_table: "Purchase_Orders"
+      target_db: "target_dwh"
+      target_table: "fact_procurement"
+      metrics:
+        - { source_col: "Total_PO_Value_USD", target_col: "total_po_value_usd", agg: "sum", atol: 0.01 }
+        - { source_col: "Order_Quantity_kg", target_col: "order_quantity_kg", agg: "sum", atol: 0.01 }
+        - { source_col: "Freight_Cost_USD", target_col: "freight_cost_usd", agg: "sum", atol: 0.01 }
+
+# --------------------------------------------------------------------
+# 4. MULTI-SOURCE CONSISTENCY ASSESSMENT
+# --------------------------------------------------------------------
+multi_source_consistency:
+  assessments:
+    - name: "Flat Denormalized vs Relational Work Orders Cross-Check"
+      source1_db: "source_excel_flat"
+      source1_table: "Manufacturing_Data"
+      source1_key: "Work_Order_Number"
+      source2_db: "source_excel_relational"
+      source2_table: "Work_Orders"
+      source2_key: "Work_Order_Number"
+      columns_to_compare:
+        - "Plant_Code"
+        - "Product_SKU"
+        - "Planned_Quantity"
+        - "Produced_Quantity"
+        - "Good_Quantity"
+        - "Scrap_Quantity"
+        - "OEE_Percent"
+
+    - name: "Relational Work Orders vs DWH Star Schema Integrity"
+      source1_db: "source_excel_relational"
+      source1_table: "Work_Orders"
+      source1_key: "Work_Order_Number"
+      source2_db: "target_dwh"
+      source2_table: "fact_work_orders"
+      source2_key: "work_order_number"
+      columns_to_compare:
+        - { s1: "Planned_Quantity", s2: "planned_quantity" }
+        - { s1: "Produced_Quantity", s2: "produced_quantity" }
+        - { s1: "Good_Quantity", s2: "good_quantity" }
+        - { s1: "Yield_Percent", s2: "yield_percent" }
+
+    - name: "Production Operational Bounds (Produced > 0, Yield <= 100%)"
+      db: "target_dwh"
+      table: "fact_work_orders"
+      expression_check: "produced_quantity > 0 and yield_percent <= 100.0"
+      description: "Verifies operational production bounds in manufacturing work orders"
