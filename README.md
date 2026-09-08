@@ -216,3 +216,1031 @@ pytest tests/pytest_framework/test_dwh_reconciliation.py -v
 ## 📞 Support & Contacts
 For questions, enhancements, or feedback regarding this framework, contact:  
 **Faizah Shaikh** — `faizah.shaikh@gds.ey.com`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yes. I reviewed your uploaded `app.py` and `ui.zip`. Your current application is **only a UI skeleton**: `app.py` defines navigation for Connections, Data Objects, Test Configuration, Run Tests, Results, History and Reports, but several of those modules are currently empty. 
+
+The good news is that you **do not need to rebuild your warehouse**. You need to connect this Streamlit application to the databases/files on your main laptop and build a metadata layer that dynamically discovers the objects.
+
+## What you should build
+
+Your main laptop should become the **execution machine**:
+
+```text
+                         MAIN LAPTOP
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│                    Streamlit UI                            │
+│                         │                                   │
+│       ┌─────────────────┼─────────────────┐                │
+│       │                 │                 │                │
+│       ▼                 ▼                 ▼                │
+│   Azure SQL         Snowflake          CSV Files            │
+│       │                 │                 │                │
+│       └─────────────────┼─────────────────┘                │
+│                         ▼                                   │
+│                Validation Engine                            │
+│                    Python + pytest                          │
+│                         │                                   │
+│              ┌──────────┴──────────┐                       │
+│              ▼                     ▼                       │
+│          Results DB             Reports                    │
+│           SQLite             HTML / Excel / CSV             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+So when you select:
+
+**Azure SQL → Sales Fact → Snowflake → Sales Fact**
+
+the application should actually query both systems.
+
+---
+
+# 1. The interaction you want
+
+I would make your **Data Objects** screen look conceptually like this:
+
+```text
+DATA SOURCE
+────────────────────────────────────────
+
+Source Type:
+[ Azure SQL ▼ ]
+
+Connection:
+[ Azure SQL - Sales DW ▼ ]
+
+Database:
+[ SalesDB ▼ ]
+
+Schema:
+[ dbo ▼ ]
+
+Object Type:
+[ Tables ▼ ]
+
+Object:
+[ fact_sales ▼ ]
+
+────────────────────────────────────────
+
+TARGET
+────────────────────────────────────────
+
+Target Type:
+[ Snowflake ▼ ]
+
+Connection:
+[ Snowflake - Sales DW ▼ ]
+
+Database:
+[ SALES_DW ▼ ]
+
+Schema:
+[ ANALYTICS ▼ ]
+
+Object Type:
+[ Tables / Views ▼ ]
+
+Object:
+[ FACT_SALES ▼ ]
+
+────────────────────────────────────────
+
+[ Load Columns ]
+```
+
+Then:
+
+```text
+SOURCE COLUMNS                     TARGET COLUMNS
+
+☑ sales_id                         ☑ SALES_ID
+☑ customer_id                      ☑ CUSTOMER_ID
+☑ product_id                       ☑ PRODUCT_ID
+☑ order_date                       ☑ ORDER_DATE
+☑ quantity                         ☑ QUANTITY
+☑ unit_price                       ☑ UNIT_PRICE
+☑ sales_amount                     ☑ SALES_AMOUNT
+☑ created_date                     ☑ CREATED_DATE
+```
+
+Then:
+
+```text
+Business Key
+
+[ sales_id ▼ ]
+
+Validation
+
+☑ Row Count
+☑ Duplicate Check
+☑ Null Check
+☑ Column Count
+☑ Data Type
+☑ Record Count
+☑ Column-by-Column
+☑ Aggregate
+☑ Source vs Target
+☑ Missing Records
+☑ Extra Records
+☑ Transformation Rules
+
+[ RUN SELECTED TESTS ]
+[ RUN ALL TESTS ]
+```
+
+That is the interaction I recommend.
+
+---
+
+# 2. Don't hardcode tables and columns
+
+This is the most important part.
+
+You **should not** write:
+
+```python
+tables = ["fact_sales", "dim_customer", "dim_product"]
+```
+
+Instead, the application should ask Azure SQL:
+
+```sql
+SELECT
+    TABLE_SCHEMA,
+    TABLE_NAME,
+    TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES
+ORDER BY TABLE_SCHEMA, TABLE_NAME;
+```
+
+Then Streamlit displays whatever actually exists.
+
+Similarly, after selecting a table:
+
+```sql
+SELECT
+    COLUMN_NAME,
+    DATA_TYPE,
+    IS_NULLABLE,
+    ORDINAL_POSITION
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = ?
+AND TABLE_NAME = ?
+ORDER BY ORDINAL_POSITION;
+```
+
+So if tomorrow you add:
+
+```text
+fact_orders
+fact_returns
+dim_store
+dim_employee
+```
+
+the UI automatically sees them.
+
+---
+
+# 3. Snowflake should work the same way
+
+For Snowflake, query its metadata:
+
+```sql
+SELECT
+    TABLE_SCHEMA,
+    TABLE_NAME,
+    TABLE_TYPE
+FROM DATABASE_NAME.INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'ANALYTICS'
+ORDER BY TABLE_NAME;
+```
+
+For columns:
+
+```sql
+SELECT
+    COLUMN_NAME,
+    DATA_TYPE,
+    IS_NULLABLE,
+    ORDINAL_POSITION
+FROM DATABASE_NAME.INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = 'ANALYTICS'
+  AND TABLE_NAME = 'FACT_SALES'
+ORDER BY ORDINAL_POSITION;
+```
+
+Then your UI can dynamically show:
+
+```text
+Snowflake
+  └── SALES_DW
+       ├── STAGING
+       ├── ODS
+       ├── ANALYTICS
+       │    ├── FACT_SALES
+       │    ├── DIM_CUSTOMER
+       │    ├── DIM_PRODUCT
+       │    └── VW_SALES_SUMMARY
+       └── ...
+```
+
+---
+
+# 4. CSV needs a different approach
+
+CSV doesn't have database metadata.
+
+Your current configuration already has:
+
+```python
+Root folder for CSV sources
+```
+
+which is a good starting point.
+
+Instead of asking the user to type a CSV filename, scan the directory:
+
+```text
+C:\SalesData\
+    customers.csv
+    products.csv
+    sales.csv
+    returns.csv
+```
+
+The UI can display:
+
+```text
+CSV FILES
+
+☐ customers.csv
+☐ products.csv
+☐ sales.csv
+☐ returns.csv
+```
+
+Once `sales.csv` is selected:
+
+```python
+df = pd.read_csv(file_path)
+```
+
+and you can show:
+
+```text
+sales.csv
+
+Rows: 125,432
+
+Columns:
+────────────────────────────
+sales_id
+customer_id
+product_id
+order_date
+quantity
+unit_price
+sales_amount
+```
+
+---
+
+# 5. Your connection page should become a real connection manager
+
+Your current `configuration.py` already attempts to collect Azure SQL and Snowflake connection information and test connections.
+
+But there is one **major problem**:
+
+### Don't save passwords in `connections.json`
+
+Your current code saves:
+
+```python
+'password': st.session_state.azure_password
+```
+
+and:
+
+```python
+'password': st.session_state.sf_password
+```
+
+into the JSON configuration.
+
+I would change that before you use this against your real warehouse.
+
+Use:
+
+```text
+.env
+```
+
+or:
+
+```text
+.streamlit/secrets.toml
+```
+
+instead.
+
+For example:
+
+```toml
+[azure_sql]
+server = "your-server"
+database = "your-database"
+username = "your-user"
+
+[snowflake]
+account = "your-account"
+user = "your-user"
+warehouse = "your-warehouse"
+database = "your-database"
+schema = "your-schema"
+```
+
+Passwords should not be committed into Git or stored inside reports.
+
+---
+
+# 6. I recommend a connection manager
+
+Create:
+
+```text
+connections/
+├── azure_sql.py
+├── snowflake.py
+└── csv_reader.py
+```
+
+### Azure SQL
+
+Something along these lines:
+
+```python
+from sqlalchemy import create_engine, text
+from urllib.parse import quote_plus
+
+
+def get_engine(server, database, username, password):
+    connection_string = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        f"SERVER={server};"
+        f"DATABASE={database};"
+        f"UID={username};"
+        f"PWD={password};"
+        "Encrypt=yes;"
+        "TrustServerCertificate=no;"
+    )
+
+    return create_engine(
+        "mssql+pyodbc:///?odbc_connect="
+        + quote_plus(connection_string)
+    )
+
+
+def test_connection(engine):
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+
+    return True
+```
+
+---
+
+# 7. Snowflake connection
+
+Your Snowflake connector can expose an engine/connection like:
+
+```python
+from sqlalchemy import create_engine
+
+
+def get_engine(
+    account,
+    user,
+    password,
+    warehouse,
+    database,
+    schema
+):
+    return create_engine(
+        f"snowflake://{user}:{password}@{account}/"
+        f"{database}/{schema}"
+        f"?warehouse={warehouse}"
+    )
+```
+
+For production, I would eventually move away from putting credentials directly into connection URLs and use a more secure authentication configuration.
+
+---
+
+# 8. Then create a metadata layer
+
+This is the piece your current project is missing.
+
+Create:
+
+```text
+metadata/
+├── azure_sql_metadata.py
+├── snowflake_metadata.py
+└── csv_metadata.py
+```
+
+For example:
+
+```python
+def get_tables(engine):
+
+    query = """
+        SELECT
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            TABLE_TYPE
+        FROM INFORMATION_SCHEMA.TABLES
+        ORDER BY TABLE_SCHEMA, TABLE_NAME
+    """
+
+    return pd.read_sql(query, engine)
+```
+
+Then:
+
+```python
+tables = get_tables(azure_engine)
+```
+
+and Streamlit:
+
+```python
+selected_table = st.selectbox(
+    "Select Table",
+    tables["TABLE_NAME"].tolist()
+)
+```
+
+Now the UI is actually connected to your warehouse.
+
+---
+
+# 9. The column interaction is where your project becomes powerful
+
+After selecting:
+
+```text
+Azure SQL
+dbo.fact_sales
+```
+
+your application retrieves the metadata.
+
+Then show:
+
+| Source Column | Data Type | Target Column | Target Type | Validate |
+| ------------- | --------- | ------------- | ----------- | -------- |
+| sales_id      | bigint    | SALES_ID      | NUMBER      | ☑        |
+| customer_id   | bigint    | CUSTOMER_ID   | NUMBER      | ☑        |
+| product_id    | bigint    | PRODUCT_ID    | NUMBER      | ☑        |
+| quantity      | int       | QUANTITY      | NUMBER      | ☑        |
+| unit_price    | decimal   | UNIT_PRICE    | NUMBER      | ☑        |
+| sales_amount  | decimal   | SALES_AMOUNT  | NUMBER      | ☑        |
+
+And allow the user to map columns.
+
+This is important because source and target column names may not always be identical.
+
+For example:
+
+```text
+Azure SQL                    Snowflake
+
+customer_id       →          CUSTOMER_KEY
+sales_amount      →          NET_SALES
+order_date        →          ORDER_DT
+```
+
+Your UI should support that.
+
+---
+
+# 10. Don't compare everything blindly
+
+For your warehouse, I recommend this validation hierarchy.
+
+### Level 1 — Structure
+
+```text
+Column count
+Column names
+Data types
+Nullable
+Column order
+```
+
+### Level 2 — Volume
+
+```text
+Source row count
+Target row count
+Difference
+Difference %
+```
+
+### Level 3 — Data quality
+
+```text
+NULL count
+Duplicate count
+Distinct count
+Blank values
+Invalid values
+```
+
+### Level 4 — Record reconciliation
+
+Using the business key:
+
+```text
+sales_id
+```
+
+compare:
+
+```text
+Azure SQL                         Snowflake
+
+10001                             10001
+10002                             10002
+10003                             10003
+```
+
+Find:
+
+```text
+Source only
+Target only
+Both but different
+```
+
+### Level 5 — Attribute reconciliation
+
+Example:
+
+```text
+sales_id = 10001
+
+quantity
+Azure SQL: 5
+Snowflake: 5
+PASS
+
+unit_price
+Azure SQL: 120.00
+Snowflake: 120.00
+PASS
+
+sales_amount
+Azure SQL: 600.00
+Snowflake: 600.00
+PASS
+```
+
+### Level 6 — Transformation validation
+
+Example:
+
+```text
+quantity * unit_price = sales_amount
+```
+
+This is particularly useful because your Azure SQL layer contains transformation/business logic.
+
+---
+
+# 11. Your Run Tests page should not ask for JSON
+
+Currently your execution page loads:
+
+```python
+scenarios.json
+```
+
+and displays the scenario JSON.
+
+That is fine for a developer framework, but **not the final user experience**.
+
+Instead of:
+
+```text
+{
+  "source": "azure",
+  "target": "snowflake",
+  "table": "fact_sales",
+  ...
+}
+```
+
+the user should see:
+
+```text
+SOURCE
+[ Azure SQL ]
+
+OBJECT
+[ dbo.fact_sales ]
+
+TARGET
+[ Snowflake ]
+
+OBJECT
+[ ANALYTICS.FACT_SALES ]
+
+BUSINESS KEY
+[ sales_id ]
+
+VALIDATIONS
+
+☑ Row Count
+☑ Schema
+☑ Null
+☑ Duplicate
+☑ Record Reconciliation
+☑ Attribute Comparison
+☑ Aggregate
+☐ Business Rule
+
+TOLERANCE
+
+Absolute: [0.01]
+Percentage: [0.00]
+
+              [ RUN SELECTED ]
+
+              [ RUN ALL ]
+```
+
+The UI then generates the scenario configuration internally.
+
+---
+
+# 12. Your supported combinations
+
+I would explicitly build a source/target matrix:
+
+| Source          | Target          | Supported |
+| --------------- | --------------- | --------- |
+| CSV             | Azure SQL Table | ✅         |
+| CSV             | Snowflake Table | ✅         |
+| Azure SQL Table | Azure SQL Table | ✅         |
+| Azure SQL Table | Azure SQL View  | ✅         |
+| Azure SQL Table | Snowflake Table | ✅         |
+| Azure SQL Table | Snowflake View  | ✅         |
+| Azure SQL View  | Snowflake Table | ✅         |
+| Azure SQL View  | Snowflake View  | ✅         |
+
+And potentially later:
+
+| Source          | Target          |
+| --------------- | --------------- |
+| Snowflake Table | Snowflake Table |
+| Snowflake View  | Snowflake View  |
+| CSV             | Azure SQL View  |
+| CSV             | Snowflake View  |
+
+---
+
+# 13. Very important: don't pull millions of records into Streamlit
+
+Suppose your fact table has:
+
+```text
+50 million rows
+```
+
+Don't do:
+
+```python
+source_df = pd.read_sql("SELECT * FROM fact_sales", azure)
+target_df = pd.read_sql("SELECT * FROM fact_sales", snowflake)
+```
+
+That can destroy your laptop's memory.
+
+Instead:
+
+### Row count
+
+```sql
+SELECT COUNT(*) FROM fact_sales;
+```
+
+### Null count
+
+```sql
+SELECT COUNT(*)
+FROM fact_sales
+WHERE customer_id IS NULL;
+```
+
+### Duplicate
+
+```sql
+SELECT sales_id, COUNT(*)
+FROM fact_sales
+GROUP BY sales_id
+HAVING COUNT(*) > 1;
+```
+
+### Aggregate
+
+```sql
+SELECT SUM(sales_amount)
+FROM fact_sales;
+```
+
+Do the calculations **inside the database**.
+
+Only retrieve the actual mismatch records.
+
+That will make your framework much more practical.
+
+---
+
+# 14. Your final application should look like this
+
+I would change your sidebar from the current basic navigation into:
+
+```text
+╔══════════════════════════════════════╗
+║     ETL RECONCILIATION PLATFORM      ║
+╠══════════════════════════════════════╣
+║                                      ║
+║ 🏠 Dashboard                         ║
+║                                      ║
+║ 🔌 Connections                       ║
+║                                      ║
+║ 🗂 Data Explorer                     ║
+║    ├── Azure SQL                     ║
+║    ├── Snowflake                     ║
+║    └── CSV Files                     ║
+║                                      ║
+║ ⚙ Validation Setup                   ║
+║                                      ║
+║ ▶ Run Validation                     ║
+║                                      ║
+║ 📊 Results                           ║
+║                                      ║
+║ 🚨 Mismatch Drill-Down               ║
+║                                      ║
+║ 📜 History                           ║
+║                                      ║
+║ 📄 Reports                           ║
+║                                      ║
+╚══════════════════════════════════════╝
+```
+
+---
+
+# 15. And your dashboard can become the report you showed me
+
+After execution:
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│       ENTERPRISE ETL RECONCILIATION DASHBOARD               │
+│                                                              │
+│                    🟢 OVERALL PASS                          │
+├──────────────┬──────────────┬──────────────┬────────────────┤
+│ PASS RATE    │ VALIDATIONS  │ CELL MATCH   │ DURATION       │
+│   98.7%      │     42       │    99.2%     │   02:34        │
+├──────────────┴──────────────┴──────────────┴────────────────┤
+│                                                              │
+│ Executive Summary | Volume | Attributes | Aggregates |      │
+│ Multi Source | Mismatches                                   │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+That is where your attached HTML becomes the **reporting/visual reference**, while Streamlit provides the actual interaction.
+
+---
+
+# 16. One more issue in your current code
+
+Your `app.py` calls:
+
+```python
+dashboard.page
+connections.page
+objects.page
+configuration.page
+execution.page
+results.page
+history.page
+reports.page
+```
+
+But the code I inspected in `execution.py` and `history.py`, for example, defines:
+
+```python
+render_execution_page()
+```
+
+and:
+
+```python
+render_history_page()
+```
+
+not `page`.
+
+Also, several modules in your ZIP are currently empty.
+
+So before connecting the warehouse, we should standardize the page interface:
+
+```python
+# dashboard.py
+def page():
+    ...
+
+# connections.py
+def page():
+    ...
+
+# objects.py
+def page():
+    ...
+
+# configuration.py
+def page():
+    ...
+
+# execution.py
+def page():
+    ...
+
+# results.py
+def page():
+    ...
+
+# history.py
+def page():
+    ...
+
+# reports.py
+def page():
+    ...
+```
+
+Then your existing:
+
+```python
+pages = {
+    "Dashboard": dashboard.page,
+    "Connections": connections.page,
+    ...
+}
+```
+
+works cleanly.
+
+---
+
+# 17. What I would build on your laptop
+
+Your actual project should ultimately look like:
+
+```text
+etl_validation_framework/
+│
+├── app.py
+│
+├── config/
+│   ├── settings.py
+│   └── scenarios.json
+│
+├── connections/
+│   ├── azure_sql.py
+│   ├── snowflake.py
+│   └── csv_reader.py
+│
+├── metadata/
+│   ├── azure_sql.py
+│   ├── snowflake.py
+│   └── csv.py
+│
+├── validations/
+│   ├── volume.py
+│   ├── schema.py
+│   ├── nulls.py
+│   ├── duplicates.py
+│   ├── aggregates.py
+│   ├── reconciliation.py
+│   └── business_rules.py
+│
+├── tests/
+│   ├── test_volume.py
+│   ├── test_schema.py
+│   ├── test_nulls.py
+│   ├── test_duplicates.py
+│   ├── test_aggregates.py
+│   └── test_reconciliation.py
+│
+├── engine/
+│   ├── pytest_runner.py
+│   └── result_processor.py
+│
+├── repository/
+│   └── sqlite_repository.py
+│
+├── reporting/
+│   ├── html_report.py
+│   ├── excel_report.py
+│   └── mismatch_report.py
+│
+├── ui/
+│   ├── dashboard.py
+│   ├── connections.py
+│   ├── objects.py
+│   ├── configuration.py
+│   ├── execution.py
+│   ├── results.py
+│   ├── history.py
+│   ├── reports.py
+│   └── mismatches.py
+│
+└── reports/
+```
+
+## The key idea
+
+**Do not make the UI contain your warehouse metadata.**
+
+Instead:
+
+```text
+Streamlit
+    ↓
+Connection Manager
+    ↓
+Metadata Discovery
+    ↓
+Azure SQL / Snowflake / CSV
+    ↓
+Tables
+    ↓
+Columns
+    ↓
+Mappings
+    ↓
+Validation Configuration
+    ↓
+pytest
+    ↓
+Validation Engine
+    ↓
+Results
+    ↓
+HTML / Excel / History
+```
+
+That gives you a **real reusable ETL reconciliation framework**, rather than a Streamlit page with hardcoded table names.
+
+### What I recommend we do next
+
+Since you already have `app.py` + `ui.zip`, the next practical step is to **modify your existing project rather than start over**. I can lay out the exact implementation for your current files so that you can run:
+
+```bash
+streamlit run app.py
+```
+
+and get:
+
+**Connections → connect/test Azure SQL & Snowflake → automatically load databases/schemas/tables/views → select table → automatically load all columns → select CSV → map source/target → select validations → Run → pytest → interactive results/report.**
+
+That is the right next version of your project.
+
